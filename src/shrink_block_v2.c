@@ -111,8 +111,8 @@ static inline int lzsa_write_literals_varlen_v2(unsigned char *pOutData, int nOu
             pOutData[nOutOffset++] = nLength - 18;
          else {
             pOutData[nOutOffset++] = 239;
-            pOutData[nOutOffset++] = nLength & 0xff;
             pOutData[nOutOffset++] = (nLength >> 8) & 0xff;
+            pOutData[nOutOffset++] = nLength & 0xff;
          }
       }
    }
@@ -165,8 +165,8 @@ static inline int lzsa_write_match_varlen_v2(unsigned char *pOutData, int nOutOf
             pOutData[nOutOffset++] = nLength + MIN_MATCH_SIZE_V2 - 24;
          else {
             pOutData[nOutOffset++] = 233;
-            pOutData[nOutOffset++] = (nLength + MIN_MATCH_SIZE_V2) & 0xff;
             pOutData[nOutOffset++] = ((nLength + MIN_MATCH_SIZE_V2) >> 8) & 0xff;
+            pOutData[nOutOffset++] = (nLength + MIN_MATCH_SIZE_V2) & 0xff;
          }
       }
    }
@@ -915,7 +915,8 @@ static int lzsa_write_block_v2(lzsa_compressor *pCompressor, lzsa_match *pBestMa
          if (nMatchOffset < MIN_OFFSET || nMatchOffset > MAX_OFFSET)
             return -1;
 
-         pOutData[nOutOffset++] = nTokenOffsetMode | (nTokenLiteralsLen << 3) | nTokenMatchLen;
+         pOutData[nOutOffset++] = (nTokenOffsetMode & 0x80) | ((nTokenOffsetMode & 0x40) >> 1) | ((nTokenOffsetMode & 0x20) << 1) | (nTokenLiteralsLen << 3) | nTokenMatchLen;
+//       pOutData[nOutOffset++] = nTokenOffsetMode | (nTokenLiteralsLen << 3) | nTokenMatchLen;
          nOutOffset = lzsa_write_literals_varlen_v2(pOutData, nOutOffset, nMaxOutDataSize, &nCurNibbleOffset, &nCurFreeNibbles, nNumLiterals);
          if (nOutOffset < 0) return -1;
 
@@ -1013,7 +1014,7 @@ static int lzsa_write_block_v2(lzsa_compressor *pCompressor, lzsa_match *pBestMa
          return -1;
 
       if (pCompressor->flags & LZSA_FLAG_RAW_BLOCK)
-         pOutData[nOutOffset++] = (nTokenLiteralsLen << 3) | 0x47;
+         pOutData[nOutOffset++] = (nTokenLiteralsLen << 3) | 0x27;
       else
          pOutData[nOutOffset++] = (nTokenLiteralsLen << 3) | 0x00;
       nOutOffset = lzsa_write_literals_varlen_v2(pOutData, nOutOffset, nMaxOutDataSize, &nCurNibbleOffset, &nCurFreeNibbles, nNumLiterals);

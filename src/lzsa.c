@@ -48,7 +48,7 @@
 #define OPT_RAW_BACKWARD   8
 #define OPT_STATS          16
 
-#define TOOL_VERSION "1.2.0"
+#define TOOL_VERSION "1.2.0 elmer"
 
 /*---------------------------------------------------------------------------*/
 
@@ -1066,7 +1066,7 @@ int main(int argc, char **argv) {
    }
 
    if (bArgsError || !pszInFilename || !pszOutFilename) {
-      fprintf(stderr, "lzsa command-line tool v" TOOL_VERSION " by Emmanuel Marty and spke\n");
+      fprintf(stderr, "lzse command-line tool v" TOOL_VERSION " by Emmanuel Marty and spke (modified)\n");
       fprintf(stderr, "usage: %s [-c] [-d] [-v] [-r] <infile> <outfile>\n", argv[0]);
       fprintf(stderr, "       -c: check resulting stream after compressing\n");
       fprintf(stderr, "       -d: decompress (default: compress)\n");
@@ -1075,7 +1075,7 @@ int main(int argc, char **argv) {
       fprintf(stderr, "    -test: run automated self-tests\n");
       fprintf(stderr, "   -stats: show compressed data stats\n");
       fprintf(stderr, "       -v: be verbose\n");
-      fprintf(stderr, "       -f <value>: LZSA compression format (1-2)\n");
+      fprintf(stderr, "       -f <value>: LZSE compression format (1-2)\n");
       fprintf(stderr, "       -r: raw block format (max. 64 Kb files)\n");
       fprintf(stderr, "       -b: compress backward (requires -r and a backward decompressor)\n");
       fprintf(stderr, "       -D <filename>: use dictionary file\n");

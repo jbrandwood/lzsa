@@ -73,8 +73,8 @@ static inline FORCE_INLINE int lzsa_build_len_v2(const unsigned char **ppInBlock
 
             if ((*nLength) == 257) {
                if ((pInBlock + 1) < pInBlockEnd) {
-                  (*nLength) = ((unsigned int)*pInBlock++);
                   (*nLength) |= (((unsigned int)*pInBlock++) << 8);
+                  (*nLength) = ((unsigned int)*pInBlock++);
                }
                else {
                   return -1;
@@ -147,7 +147,7 @@ int lzsa_decompressor_expand_block_v2(const unsigned char *pInBlock, int nBlockS
       }
 
       if (pInBlock < pInBlockEnd) { /* The last token in the block does not include match information */
-         unsigned char nOffsetMode = token & 0xc0;
+         unsigned char nOffsetMode = token & 0xa0;
          unsigned int nValue;
 
          switch (nOffsetMode) {
@@ -156,15 +156,15 @@ int lzsa_decompressor_expand_block_v2(const unsigned char *pInBlock, int nBlockS
             if (lzsa_get_nibble_v2(&pInBlock, pInBlockEnd, &nCurNibbles, &nibbles, &nValue))
                return -1;
             nMatchOffset = nValue << 1;
-            nMatchOffset |= ((token & 0x20) >> 5);
+            nMatchOffset |= ((token & 0x40) >> 6);
             nMatchOffset ^= 0x1e;
             nMatchOffset++;
             break;
 
-         case 0x40:
+         case 0x20:
             /* 9 bit offset */
             nMatchOffset = (unsigned int)(*pInBlock++);
-            nMatchOffset |= (((unsigned int)(token & 0x20)) << 3);
+            nMatchOffset |= (((unsigned int)(token & 0x40)) << 2);
             nMatchOffset ^= 0x0ff;
             nMatchOffset++;
             break;
@@ -175,14 +175,14 @@ int lzsa_decompressor_expand_block_v2(const unsigned char *pInBlock, int nBlockS
                return -1;
             nMatchOffset = (unsigned int)(*pInBlock++);
             nMatchOffset |= (nValue << 9);
-            nMatchOffset |= (((unsigned int)(token & 0x20)) << 3);
+            nMatchOffset |= (((unsigned int)(token & 0x40)) << 2);
             nMatchOffset ^= 0x1eff;
             nMatchOffset += (512 + 1);
             break;
 
          default:
             /* Check if this is a 16 bit offset or a rep-match */
-            if ((token & 0x20) == 0) {
+            if ((token & 0x40) == 0) {
                /* 16 bit offset */
                nMatchOffset = (((unsigned int)(*pInBlock++)) << 8);
                if (pInBlock >= pInBlockEnd) return -1;
